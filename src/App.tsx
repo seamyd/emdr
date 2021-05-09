@@ -1,19 +1,28 @@
-import React, { useState } from 'react';
-import { render } from 'react-dom';
-import Bar from './components/Bar';
-import Light from './components/Light';
-import SpeedSlider from './components/SpeedSlider';
+import React, { useState } from "react";
+import { render } from "react-dom";
+import styled from "styled-components";
+import Circle from "./components/Bar";
+import SpeedSlider from "./components/SpeedSlider";
+
+const Layout = styled.div`
+  display: grid;
+  grid-template-areas:
+      ". . . . ."
+      ". bar bar bar ."
+      ". . slider . ."
+      ". . . . .";
+  grid-template-rows: repeat(4, 1fr);
+  grid-template-columns: 20px repeat(3, 1fr) 20px;
+`;
 
 const App = () => {
-  const [lightSpeed, setLightSpeed] = useState('4');
+  const [lightSpeed, setLightSpeed] = useState("4");
   return (
-    <>
-      <Bar>
-        <Light duration={parseInt(lightSpeed, 10)} />
-      </Bar>
+    <Layout>
+      <Circle />
       <SpeedSlider speed={lightSpeed} updateSpeed={(e) => setLightSpeed(e.target.value)} />
-    </>
+    </Layout>
   );
 };
 
-render(<App />, document.getElementById('app'));
+render(<App />, document.getElementById("app"));
