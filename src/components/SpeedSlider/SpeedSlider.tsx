@@ -1,4 +1,44 @@
-import React from 'react';
+import React from "react";
+import styled from "styled-components";
+
+const sliderThumbStyles = () => (`
+  width: 25px;
+  height: 25px;
+  background: black;
+  cursor: pointer;
+  outline: 5px solid #333;
+  opacity: 0.7;
+`);
+
+const Styles = styled.div`
+  grid-area: slider;
+  display: flex;
+  align-items: center;
+  color: #888;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  .value {
+    flex: 1;
+    font-size: 2rem;
+  }
+  .slider {
+    flex: 6;
+    -webkit-appearance: none;
+    width: 100%;
+    height: 15px;
+    border-radius: 5px;
+    background: #efefef;
+    outline: none;
+    &::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      ${sliderThumbStyles()}
+    }
+    &::-moz-range-thumb {
+      ${sliderThumbStyles()}
+    }
+  }
+`;
 
 interface Props {
   speed: string;
@@ -6,21 +46,10 @@ interface Props {
 }
 
 const SpeedSlider: React.VFC<Props> = ({ updateSpeed, speed }) => (
-  <div>
-    <label htmlFor="speedSlider">
-      Selecteer Snelheid
-      <input
-        type="range"
-        id="SpeedSlider"
-        name="speedSlider"
-        min="1"
-        max="10"
-        step="0.5"
-        value={speed}
-        onChange={(e) => updateSpeed(e)}
-      />
-    </label>
-  </div>
+  <Styles>
+    <input type="range" min={1} max={5} step={0.5} value={speed} className="slider" onChange={updateSpeed} />
+    <div className="value">{speed}</div>
+  </Styles>
 );
 
 export default SpeedSlider;
