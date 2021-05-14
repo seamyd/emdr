@@ -20,6 +20,8 @@ const Styles = styled.div`
   .value {
     flex: 1;
     font-size: 2rem;
+    font-weight: bold;
+    color: #111;
     margin-left: 2rem;
   }
   .slider {
