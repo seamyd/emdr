@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useResizeDetector } from "react-resize-detector";
 import styled from "styled-components";
 
@@ -32,62 +32,85 @@ const Canvas: React.FC<CanvasProps> = React.memo(({ setContextRef, children }) =
   );
 });
 
-const useAnimateCircle = (speed: number, startX: number, endX: number) => {
-  const [xValue, setXValue] = useState(0);
-  const [rAF, setRAF] = useState<number | null>(null);
-  const [direction, setDirection] = useState<"forward" | "backward">("forward");
+interface Circle {
+  x: number;
+  y: number;
+  radius: number;
+  color: string;
+  draw(): void;
+  setX(amount: number): void;
+  setColor(color: string): void;
+}
 
-  const updateAnimationState = () => {
-    if (direction === "forward") {
-      if ((xValue + speed) > (endX - 64)) {
-        setXValue(endX - 64);
-        setDirection("backward");
-      } else {
-        setXValue((prevState) => (prevState + speed));
-      }
-    } else if (direction === "backward") {
-      if ((xValue - speed) < startX) {
-        setXValue(startX);
-        setDirection("forward");
-      } else {
-        setXValue((prevState) => prevState - speed);
-      }
-    }
-    setRAF(requestAnimationFrame(updateAnimationState));
-  };
+function circleFactory(
+  context: CanvasRenderingContext2D,
+): Circle {
+  return ({
+    x: 32,
+    y: 32,
+    radius: 32,
+    color: "#000",
+    draw() {
+      context.fillStyle = this.color;
+      const circle = new Path2D();
+      circle.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
+      context.fill(circle);
+    },
+    setX(amount: number) {
+      this.x = amount;
+    },
+    setColor(color: string) {
+      this.color = color;
+    },
+  });
+}
 
-  useEffect(() => {
-    setRAF(requestAnimationFrame(updateAnimationState));
-    return () => cancelAnimationFrame(rAF as number);
-  }, [xValue, speed, startX, endX]);
-
-  return xValue;
-};
-
-const Circle: React.FC = () => {
+const CircleAnimation: React.FC<{speed: number, color: string}> = ({ speed, color }) => {
   const [contextRef, setContextRef] = useState<CanvasRenderingContext2D | null>(null);
   const [canvasWidth, setCanvasWidth] = useState<number>(0);
-
-  const x = useAnimateCircle(2, 0, canvasWidth);
+  const [canvasHeight, setCanvasHeight] = useState<number>(0);
+  const rAF = useRef<number>(0);
+  const direction = useRef<"forward" | "backward">("forward");
 
   const saveContextRef = (context: CanvasRenderingContext2D) => {
     setContextRef(context);
     setCanvasWidth(context.canvas.width);
+    setCanvasHeight(context.canvas.height);
   };
 
   useEffect(() => {
     if (contextRef) {
-      contextRef.clearRect(0, 0, canvasWidth, contextRef.canvas.height);
-      contextRef.fillStyle = "#000000";
-      const circle = new Path2D();
-      circle.arc(32 + x, 32, 32, 0, 2 * Math.PI);
-      contextRef.fill(circle);
+      const circle = circleFactory(contextRef);
+      circle.setColor(color);
+      circle.draw();
+      const animate = () => {
+        contextRef.clearRect(0, 0, canvasWidth, canvasHeight);
+        circle.draw();
+        if (direction.current === "forward") {
+          if ((circle.x + speed) > (canvasWidth - circle.radius)) {
+            circle.setX(canvasWidth - circle.radius);
+            direction.current = "backward";
+          } else {
+            circle.setX(circle.x + speed);
+          }
+        } else if (direction.current === "backward") {
+          if ((circle.x - speed) < circle.radius) {
+            circle.setX(circle.radius);
+            direction.current = "forward";
+          } else {
+            circle.setX(circle.x - speed);
+          }
+        }
+        rAF.current = window.requestAnimationFrame(animate);
+      };
+      rAF.current = window.requestAnimationFrame(animate);
     }
-  }, [contextRef, canvasWidth, x]);
+    return () => window.cancelAnimationFrame(rAF.current);
+  }, [contextRef, canvasWidth, color, speed]);
 
   return (
     <Canvas setContextRef={saveContextRef} />
   );
 };
 
-export default Circle;
+export default CircleAnimation;

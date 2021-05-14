@@ -19,7 +19,7 @@ const App = () => {
   const [lightSpeed, setLightSpeed] = useState("4");
   return (
     <Layout>
-      <Circle />
+      <Circle speed={parseInt(lightSpeed, 10)} color="#0015ff" />
       <SpeedSlider speed={lightSpeed} updateSpeed={(e) => setLightSpeed(e.target.value)} />
     </Layout>
   );

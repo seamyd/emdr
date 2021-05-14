@@ -20,6 +20,7 @@ const Styles = styled.div`
   .value {
     flex: 1;
     font-size: 2rem;
+    margin-left: 2rem;
   }
   .slider {
     flex: 6;
@@ -47,7 +48,7 @@ interface Props {
 
 const SpeedSlider: React.VFC<Props> = ({ updateSpeed, speed }) => (
   <Styles>
-    <input type="range" min={1} max={5} step={0.5} value={speed} className="slider" onChange={updateSpeed} />
+    <input type="range" min={1} max={12} step={1} value={speed} className="slider" onChange={updateSpeed} />
     <div className="value">{speed}</div>
   </Styles>
 );
